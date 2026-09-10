@@ -40,10 +40,14 @@ This project is being built incrementally. Progress so far:
 
 ##  Project Structure
 
-\`\`\`
+```
 financial-statement-analyzer/
-├── backend/          → FastAPI server + calculation logic + AI integration
-├── frontend/         → React app (UI)
-├── data/             → Sample CSV files
+├── backend/
+│   ├── calculations.py      → Pandas ratio calculations (Part A)
+│   ├── ai_service.py        → Gemini API integration (Part B)
+│   └── main.py               → FastAPI server
+├── frontend/                → React app (UI)
+├── data/
+│   └── sample_financials.csv → Sample dataset for testing
 └── README.md
-\`\`\`
+```
