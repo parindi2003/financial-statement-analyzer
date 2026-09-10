@@ -10,8 +10,23 @@ Upload a company's financial statement (CSV/Excel with revenue, expenses, assets
 
 This project uses a **hybrid deterministic + AI architecture**:
 
-- **Part A — Deterministic (Pandas/NumPy):** All financial ratio calculations are done with plain Python math. 100% accurate, no AI involved.
-- **Part B — AI Reasoning (LLM):** The AI only receives already-calculated, verified numbers and explains them in plain language — it never does the math itself.
+##  Part A: Calculation Engine — Progress
+
+The calculation engine (`backend/calculations.py`) currently does the following:
+
+1. **Loads raw financial data** from a CSV file structured in "long format" (`Year, Line_Item, Category, Amount` — one row per line item per year).
+2. **Pivots the data** into a "wide format" (one row per year, one column per line item) using `pandas.pivot_table()`, so ratio formulas can reference values directly (e.g. `row["Revenue"]`).
+3. **Calculates financial ratios** using standard, auditable formulas — currently implemented and manually verified:
+   -  **Net Profit Margin** = (Net Profit / Revenue) × 100
+
+Each ratio is cross-checked by hand against the raw numbers before being trusted in the pipeline. For example, with 2023 Revenue = 5,000,000 and Net Profit = 487,000, the engine correctly outputs a 9.74% margin — matching the manual calculation.
+
+**Ratios planned next:** Gross Profit Margin, Operating Margin, Return on Assets (ROA), Return on Equity (ROE), Debt-to-Equity Ratio, Current Ratio, Quick Ratio.
+
+
+##  Note on Sample Data
+
+The `sample_financials.csv` file is synthetic test data created to verify the calculation logic against known, hand-calculated expected values before testing against real-world financial data. This is standard practice for validating logic in a controlled way before introducing real-world complexity.
 
 ### Why this approach?
 
