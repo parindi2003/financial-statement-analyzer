@@ -10,19 +10,28 @@ Upload a company's financial statement (CSV/Excel with revenue, expenses, assets
 
 This project uses a **hybrid deterministic + AI architecture**:
 
-##  Part A: Calculation Engine — Progress
+## 🧮 Part A: Calculation Engine — Complete ✅
 
-The calculation engine (`backend/calculations.py`) currently does the following:
+The calculation engine (`backend/calculations.py`) does the following:
 
 1. **Loads raw financial data** from a CSV file structured in "long format" (`Year, Line_Item, Category, Amount` — one row per line item per year).
 2. **Pivots the data** into a "wide format" (one row per year, one column per line item) using `pandas.pivot_table()`, so ratio formulas can reference values directly (e.g. `row["Revenue"]`).
-3. **Calculates financial ratios** using standard, auditable formulas — currently implemented and manually verified:
-   -  **Net Profit Margin** = (Net Profit / Revenue) × 100
+3. **Calculates 8 core financial ratios** using standard, auditable formulas, returned together as a dictionary for a given year:
 
-Each ratio is cross-checked by hand against the raw numbers before being trusted in the pipeline. For example, with 2023 Revenue = 5,000,000 and Net Profit = 487,000, the engine correctly outputs a 9.74% margin — matching the manual calculation.
+   | Ratio | Formula |
+   |---|---|
+   | Gross Profit Margin | (Revenue − COGS) / Revenue |
+   | Operating Margin | Operating Income / Revenue |
+   | Net Profit Margin | Net Profit / Revenue |
+   | Return on Assets (ROA) | Net Profit / Total Assets |
+   | Return on Equity (ROE) | Net Profit / Shareholders Equity |
+   | Debt-to-Equity Ratio | Total Liabilities / Shareholders Equity |
+   | Current Ratio | Current Assets / Current Liabilities |
+   | Quick Ratio | (Current Assets − Inventory) / Current Liabilities |
 
-**Ratios planned next:** Gross Profit Margin, Operating Margin, Return on Assets (ROA), Return on Equity (ROE), Debt-to-Equity Ratio, Current Ratio, Quick Ratio.
+Every ratio was manually cross-checked against hand-calculated values before being trusted in the pipeline — for example, 2023 Net Profit Margin was verified at 9.74% (487,000 / 5,000,000 × 100), matching the engine's output exactly.
 
+This engine deliberately contains **zero AI logic** — every number is produced by deterministic Python/Pandas arithmetic, which is the foundation the AI explanation layer (Part B) will build on top of.
 
 ##  Note on Sample Data
 
@@ -42,16 +51,17 @@ LLMs can hallucinate numbers. In financial data, a wrong number presented confid
 | Frontend | React |
 | Data | CSV/Excel (no database) |
 
-##  Project Status
+## 🚧 Project Status
 
-This project is being built incrementally. Progress so far:
-
-- [x] Project setup & Git/GitHub configured
-- [ ] Calculation engine (Part A)
-- [ ] AI reasoning layer (Part B)
-- [ ] Backend API (FastAPI)
-- [ ] Frontend (React)
-- [ ] End-to-end testing
+- [x] Project setup, Git & GitHub configured
+- [x] Part A: Calculation engine — **complete**
+  - [x] CSV loading with Pandas
+  - [x] Data pivoting (long format → wide format)
+  - [x] All 8 core financial ratios implemented & verified
+- [ ] AI reasoning layer (Part B) — Gemini API integration
+- [ ] Backend API (FastAPI endpoints)
+- [ ] Frontend (React) — file upload + chat interface
+- [ ] End-to-end testing with real company data
 
 ##  Project Structure
 
