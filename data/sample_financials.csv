@@ -1,0 +1,41 @@
+Year,Line_Item,Category,Amount
+2023,Revenue,Income Statement,5000000
+2023,Cost of Goods Sold,Income Statement,3000000
+2023,Gross Profit,Income Statement,2000000
+2023,Operating Expenses,Income Statement,1200000
+2023,Operating Income,Income Statement,800000
+2023,Interest Expense,Income Statement,150000
+2023,Tax Expense,Income Statement,163000
+2023,Net Profit,Income Statement,487000
+2023,Cash and Cash Equivalents,Balance Sheet,600000
+2023,Accounts Receivable,Balance Sheet,450000
+2023,Inventory,Balance Sheet,700000
+2023,Total Current Assets,Balance Sheet,1750000
+2023,Property Plant and Equipment,Balance Sheet,2800000
+2023,Total Assets,Balance Sheet,4550000
+2023,Accounts Payable,Balance Sheet,380000
+2023,Short Term Debt,Balance Sheet,300000
+2023,Total Current Liabilities,Balance Sheet,680000
+2023,Long Term Debt,Balance Sheet,1500000
+2023,Total Liabilities,Balance Sheet,2180000
+2023,Shareholders Equity,Balance Sheet,2370000
+2022,Revenue,Income Statement,4300000
+2022,Cost of Goods Sold,Income Statement,2700000
+2022,Gross Profit,Income Statement,1600000
+2022,Operating Expenses,Income Statement,1050000
+2022,Operating Income,Income Statement,550000
+2022,Interest Expense,Income Statement,140000
+2022,Tax Expense,Income Statement,102500
+2022,Net Profit,Income Statement,307500
+2022,Cash and Cash Equivalents,Balance Sheet,420000
+2022,Accounts Receivable,Balance Sheet,390000
+2022,Inventory,Balance Sheet,620000
+2022,Total Current Assets,Balance Sheet,1430000
+2022,Property Plant and Equipment,Balance Sheet,2600000
+2022,Total Assets,Balance Sheet,4030000
+2022,Accounts Payable,Balance Sheet,340000
+2022,Short Term Debt,Balance Sheet,280000
+2022,Total Current Liabilities,Balance Sheet,620000
+2022,Long Term Debt,Balance Sheet,1450000
+2022,Total Liabilities,Balance Sheet,2070000
+2022,Shareholders Equity,Balance Sheet,1960000
