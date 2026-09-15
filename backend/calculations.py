@@ -49,17 +49,7 @@ def calculate_ratios(wide_df,year):
 
 
 
-if __name__ == "__main__":
-    data = load_financials("../data/sample_financials.csv")
-    print(data)
-    wide = pivot_by_year(data)
-    print(wide)
 
-    margin_2023 = calculate_net_profit_margin(wide,2023)
-    print(f"\n2023 Net Profit Margin : {margin_2023}%")
-
-    margin_2022 = calculate_net_profit_margin(wide,2022)
-    print(f"\n2022 Net Profit Margin : {margin_2022}%")
 
 
     if __name__ == "__main__":
