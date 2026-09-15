@@ -65,6 +65,34 @@ Plain-language AI analysis
 
 This confirms the system's central design goal: **every number shown to the user is 100% deterministic and verifiable (Pandas), while the interpretation is handled by AI** — with no risk of the AI inventing or miscalculating a figure.
 
+ ##  Backend API (FastAPI)
+
+The system is now exposed as a web API using **FastAPI**, making it accessible over HTTP rather than only through the command line. This is the layer the React frontend will connect to.
+
+**Endpoint implemented:**
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/` | Health check — confirms the API is running |
+| GET | `/analyze?year=2023` | Runs the full pipeline (CSV → ratios → AI explanation) for a given year and returns the result as JSON |
+
+**Example response from `/analyze`:**
+
+```json
+{
+  "year": 2023,
+  "ratios": {
+    "Gross Profit Margin (%)": 40.0,
+    "Net Profit Margin (%)": 9.74,
+    "Return on Equity - ROE (%)": 20.55,
+    "...": "..."
+  },
+  "ai_explanation": "Yes, the company is highly profitable, keeping nearly 10% of its revenue as pure profit..."
+}
+```
+
+This confirms the backend can now serve both the deterministic financial data and the AI-generated interpretation through a single, structured API call — exactly what a frontend needs to consume and display.
+
 ##  Note on Sample Data
 
 The `sample_financials.csv` file is synthetic test data created to verify the calculation logic against known, hand-calculated expected values before testing against real-world financial data. This is standard practice for validating logic in a controlled way before introducing real-world complexity.
@@ -83,7 +111,7 @@ LLMs can hallucinate numbers. In financial data, a wrong number presented confid
 | Frontend | React |
 | Data | CSV/Excel (no database) |
 
-## 🚧 Project Status
+##  Project Status
 
 - [x] Project setup, Git & GitHub configured
 - [x] Part A: Calculation engine — **complete**
@@ -93,12 +121,16 @@ LLMs can hallucinate numbers. In financial data, a wrong number presented confid
 - [x] Part B: AI reasoning layer — **complete**
   - [x] Gemini API connected and authenticated
   - [x] `explain_ratios()` function — converts calculated ratios into a natural-language prompt and returns a plain-English explanation
-- [x] **Part A + Part B Integration — complete** 🎉
+- [x] Part A + Part B Integration — **complete**
   - [x] Real calculated ratios (not dummy data) are automatically passed to the AI layer
   - [x] End-to-end pipeline verified: CSV → Pandas ratios → AI explanation
-- [ ] Backend API (FastAPI endpoints)
+- [x] **Backend API (FastAPI) — complete** 
+  - [x] `/analyze` endpoint — runs the full pipeline and returns ratios + AI explanation as JSON
+  - [x] Tested and verified via browser
 - [ ] Frontend (React) — file upload + chat interface
 - [ ] End-to-end testing with real company data
+
+
 ##  Project Structure
 
 ```
