@@ -111,6 +111,20 @@ LLMs can hallucinate numbers. In financial data, a wrong number presented confid
 | Frontend | React |
 | Data | CSV/Excel (no database) |
 
+##  Frontend (React) — In Progress
+
+The frontend is being built as a **3-screen flow**: Welcome → Analyzing → Results.
+
+**Design direction:** a clean, ledger-inspired aesthetic — warm paper-white backgrounds, serif headings, monospace numbers, and a muted teal/amber accent palette — chosen to feel trustworthy and financial rather than like a generic SaaS dashboard.
+
+**Completed so far:**
+- **Welcome Screen** — introduces the app, lets the user either upload their own CSV or try the app instantly with bundled sample data (lowering the barrier for a first-time user, e.g. a recruiter reviewing the project)
+
+**Planned next:**
+- Wiring the upload/sample buttons to the FastAPI `/analyze` endpoint
+- A loading state with step-by-step progress feedback
+- A results dashboard showing categorized ratios, a rules-based financial health verdict (deterministic, not AI-generated — consistent with this project's core "AI explains, never decides" principle), the AI's plain-language analysis, and a follow-up Q&A chat
+
 ##  Project Status
 
 - [x] Project setup, Git & GitHub configured
@@ -124,12 +138,15 @@ LLMs can hallucinate numbers. In financial data, a wrong number presented confid
 - [x] Part A + Part B Integration — **complete**
   - [x] Real calculated ratios (not dummy data) are automatically passed to the AI layer
   - [x] End-to-end pipeline verified: CSV → Pandas ratios → AI explanation
-- [x] **Backend API (FastAPI) — complete** 
+- [x] Backend API (FastAPI) — **complete**
   - [x] `/analyze` endpoint — runs the full pipeline and returns ratios + AI explanation as JSON
-  - [x] Tested and verified via browser
-- [ ] Frontend (React) — file upload + chat interface
+- [x] **Frontend (React) — in progress** 
+  - [x] Project scaffolded with Vite
+  - [x] Welcome screen UI — file upload area + "try sample data" option, styled to match a clean, ledger-inspired design
+  - [ ] Connect upload/sample button to backend `/analyze` endpoint
+  - [ ] Loading state while analysis runs
+  - [ ] Results screen — ratios display, AI explanation, verdict, follow-up chat
 - [ ] End-to-end testing with real company data
-
 
 ##  Project Structure
 
