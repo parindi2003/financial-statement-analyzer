@@ -113,17 +113,40 @@ LLMs can hallucinate numbers. In financial data, a wrong number presented confid
 
 ##  Frontend (React) — In Progress
 
-The frontend is being built as a **3-screen flow**: Welcome → Analyzing → Results.
+The frontend is built as a **3-screen user flow**: Welcome → Analyzing → Results. It communicates with the FastAPI backend over HTTP.
 
-**Design direction:** a clean, ledger-inspired aesthetic — warm paper-white backgrounds, serif headings, monospace numbers, and a muted teal/amber accent palette — chosen to feel trustworthy and financial rather than like a generic SaaS dashboard.
+### Design Direction
 
-**Completed so far:**
-- **Welcome Screen** — introduces the app, lets the user either upload their own CSV or try the app instantly with bundled sample data (lowering the barrier for a first-time user, e.g. a recruiter reviewing the project)
+A clean, ledger-inspired aesthetic — warm paper-white backgrounds, serif headings, monospace numbers, and a muted teal/amber accent palette — chosen to feel trustworthy and financial rather than like a generic SaaS dashboard.
 
-**Planned next:**
-- Wiring the upload/sample buttons to the FastAPI `/analyze` endpoint
-- A loading state with step-by-step progress feedback
-- A results dashboard showing categorized ratios, a rules-based financial health verdict (deterministic, not AI-generated — consistent with this project's core "AI explains, never decides" principle), the AI's plain-language analysis, and a follow-up Q&A chat
+### Screen 1: Welcome Screen —  Complete
+
+- Introduces the app in one sentence
+- Lets the user upload their own CSV, or click "Try with sample company data" for an instant demo
+- Displays a clear error message if the backend request fails (e.g. server not running)
+
+### Screen 2: Analyzing (Loading State) —  Complete
+
+Shown while the request to the backend is in flight (the pipeline includes a live AI API call, so this can take a few seconds).
+
+### Screen 3: Results Screen —  Basic version working
+
+- **Full pipeline connected end-to-end**: clicking "Try sample data" triggers a real request to the FastAPI `/analyze` endpoint, and the returned ratios + AI explanation render on screen
+- Currently displayed as raw JSON for verification — the next step is turning this into a proper dashboard:
+  - Categorized ratio cards (Profitability / Liquidity / Leverage)
+  - A rules-based financial health verdict (deterministic Python logic, not AI-generated — consistent with this project's "AI explains, never decides" principle)
+  - The AI's plain-language explanation, styled as a highlighted narrative section
+  - A follow-up Q&A chat input
+
+### Technical Notes
+
+- **CORS**: the FastAPI backend explicitly allows requests from the React dev server (`http://localhost:5173`) via `CORSMiddleware`, since browsers block cross-origin requests by default
+- **State management**: a single `screen` state variable (`"welcome" | "loading" | "results"`) controls which view is rendered, using conditional rendering rather than a routing library — appropriate for this app's simple, linear flow
+
+### Planned Next Steps
+1. Build the styled Results dashboard (ratio cards, verdict, AI narrative)
+2. Add the rules-based health verdict logic
+3. Add follow-up Q&A chat
 
 ##  Project Status
 
