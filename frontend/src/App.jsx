@@ -29,7 +29,7 @@ function App() {
     const file = e.target.files[0];
     if (file) {
       console.log("File selected:", file.name);
-      // දැනට, file upload කළොත්, sample data එකම use කරනවා (real upload logic පස්සේ දාමු)
+
       fetchAnalysis();
     }
   };
@@ -88,12 +88,28 @@ function App() {
         </div>
       )}
 
-      {screen === "results" && data && (
-        <div className="results-card">
-          <h2>Results for {data.year}</h2>
-          <pre>{JSON.stringify(data, null, 2)}</pre>
+     {screen === "results" && data && (
+  <div className="results-card">
+    <div className="results-header">
+      <h2>Results for {data.year}</h2>
+      <span className="health-badge">Strong Health</span>
+    </div>
+
+    <div className="ratios-grid">
+      {Object.entries(data.ratios).map(([key, value]) => (
+        <div className="ratio-card" key={key}>
+          <div className="ratio-label">{key}</div>
+          <div className="ratio-value">{value}</div>
         </div>
-      )}
+      ))}
+    </div>
+
+    <div className="ai-explanation-box">
+      <div className="ai-label">AI Explanation</div>
+      <p>{data.ai_explanation}</p>
+    </div>
+  </div>
+)}
     </div>
   );
 }
