@@ -38,7 +38,18 @@ def calculate_ratios(wide_df,year):
     }
     return ratios
 
+def get_verdict(ratios):
+    net_margin = ratios["Net Profit Margin (%)"]
+    debt_to_equity = ratios["Debt-to-Equity Ratio"]
+    current_ratio = ratios["Current Ratio"]
 
+    if net_margin > 8 and debt_to_equity < 1.5 and current_ratio > 1.5:
+        return "Strong Health"
+    elif net_margin > 0 and current_ratio > 1:
+        return "Moderate Health"
+    else:
+        return "Needs Attention"
+        
 
 
 

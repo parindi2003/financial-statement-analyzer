@@ -92,7 +92,7 @@ function App() {
   <div className="results-card">
     <div className="results-header">
       <h2>Results for {data.year}</h2>
-      <span className="health-badge">Strong Health</span>
+     <span className="health-badge">{data.verdict}</span>
     </div>
 
     <div className="ratios-grid">

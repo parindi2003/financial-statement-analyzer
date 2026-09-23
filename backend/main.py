@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from calculations import load_financials, pivot_by_year, calculate_ratios
+from calculations import load_financials, pivot_by_year, calculate_ratios, get_verdict
 from ai_service import explain_ratios
 
 app = FastAPI()
@@ -19,14 +19,16 @@ from calculations import load_financials,pivot_by_year,calculate_ratios
 from ai_service import explain_ratios
 
 @app.get("/analyze")
-def analyze(year:int = 2023):
+def analyze(year: int = 2023):
     data = load_financials("../data/sample_financials.csv")
     wide = pivot_by_year(data)
-    ratios = calculate_ratios(wide,year)
+    ratios = calculate_ratios(wide, year)
+    verdict = get_verdict(ratios)
     explanation = explain_ratios(ratios, year)
 
-    return{
-        "year":year,
-        "ratios":ratios,
+    return {
+        "year": year,
+        "ratios": ratios,
+        "verdict": verdict,
         "ai_explanation": explanation
     }
