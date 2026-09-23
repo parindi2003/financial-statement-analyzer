@@ -129,14 +129,43 @@ A clean, ledger-inspired aesthetic — warm paper-white backgrounds, serif headi
 
 Shown while the request to the backend is in flight (the pipeline includes a live AI API call, so this can take a few seconds).
 
-### Screen 3: Results Screen —  Basic version working
 
-- **Full pipeline connected end-to-end**: clicking "Try sample data" triggers a real request to the FastAPI `/analyze` endpoint, and the returned ratios + AI explanation render on screen
-- Currently displayed as raw JSON for verification — the next step is turning this into a proper dashboard:
-  - Categorized ratio cards (Profitability / Liquidity / Leverage)
-  - A rules-based financial health verdict (deterministic Python logic, not AI-generated — consistent with this project's "AI explains, never decides" principle)
-  - The AI's plain-language explanation, styled as a highlighted narrative section
-  - A follow-up Q&A chat input
+
+### Screen 3: Results Dashboard —  Complete (core version)
+
+Once the backend responds, the raw JSON is transformed into a readable dashboard:
+
+- **Full pipeline connected end-to-end** — clicking "Try sample data" (or uploading a file) triggers a real HTTP request to the FastAPI `/analyze` endpoint. Nothing on this screen is mocked: the ratios shown are the live output of `calculations.py`, and the narrative is a live response from the Gemini API.
+
+- **Categorized ratio cards, rendered dynamically** — rather than hardcoding eight separate `<div>` elements (one per ratio), the component uses `Object.entries(data.ratios).map(...)` to loop over whatever ratios the backend returns and generate a card for each one automatically. This means the UI doesn't need to change if more ratios are added to `calculations.py` in the future — it scales with the backend's output.
+
+- **AI explanation panel** — the plain-language analysis returned by `explain_ratios()` is displayed in a visually distinct, highlighted section (amber accent), separating "AI-generated interpretation" from the "calculated facts" (ratio cards) at a glance.
+
+- **Health badge — currently a static placeholder.** The dashboard shows a "Strong Health" label, but this is hardcoded in the frontend for now, not calculated. This is called out explicitly here rather than left ambiguous, because it's the next piece of real logic to be built (see below).
+
+### Planned Next Steps
+
+**1. Financial health verdict (rules-based, not AI-generated)**
+
+The plan is to add a small Python function in the backend — something like:
+
+```python
+def get_verdict(ratios):
+    if ratios["Net Profit Margin (%)"] > 8 and ratios["Debt-to-Equity Ratio"] < 1.5:
+        return "Strong Health"
+    elif ratios["Net Profit Margin (%)"] > 0:
+        return "Moderate Health"
+    else:
+        return "Needs Attention"
+```
+
+This function will run **before** the ratios are sent to Gemini, and its output will be passed to the AI as another piece of already-decided, verified context — the same way the ratios themselves are. The AI's job will be to explain *why* that verdict makes sense in plain language, not to choose the verdict itself.
+
+This design choice matters for the same reason the ratio calculations are kept out of the AI's hands: **a verdict is a decision**, and this project's whole premise is that decisions and numbers come from deterministic code, while the AI's role is strictly limited to interpretation. If the AI were allowed to generate the verdict directly, the same financial data could theoretically produce a different verdict on different runs — which would undermine the reliability this project is built around.
+
+**2. Follow-up Q&A chat**
+
+A chat input will be added below the results, letting the user ask specific questions (e.g. *"why is the debt ratio considered manageable?"*). These questions will be sent to Gemini along with the already-calculated ratios as context, so answers stay grounded in the same verified numbers rather than the AI reasoning about the company from scratch.
 
 ### Technical Notes
 
