@@ -165,15 +165,39 @@ def get_verdict(ratios):
 
 This runs **before** the ratios are sent to Gemini. The `/analyze` endpoint now returns `verdict` alongside `ratios` and `ai_explanation`, and the frontend displays it directly from the backend response (`data.verdict`) rather than a hardcoded label. The AI is not involved in reaching this verdict — it only explains it — keeping the system's core guarantee intact: **decisions and numbers are deterministic, only the explanation is AI-generated.**
 
-**2. Follow-up Q&A chat — Planned**
+### Planned Next Steps
 
-A chat input will be added below the results, letting the user ask specific questions (e.g. *"why is the debt ratio considered manageable?"*). These questions will be sent to Gemini along with the already-calculated ratios as context, so answers stay grounded in the same verified numbers rather than the AI reasoning about the company from scratch.
+**1.  Financial health verdict — Complete**
 
-This function will run **before** the ratios are sent to Gemini, and its output will be passed to the AI as another piece of already-decided, verified context — the same way the ratios themselves are. The AI's job will be to explain *why* that verdict makes sense in plain language, not to choose the verdict itself.
+Implemented as a deterministic Python function (`get_verdict()` in `calculations.py`):
 
-This design choice matters for the same reason the ratio calculations are kept out of the AI's hands: **a verdict is a decision**, and this project's whole premise is that decisions and numbers come from deterministic code, while the AI's role is strictly limited to interpretation. If the AI were allowed to generate the verdict directly, the same financial data could theoretically produce a different verdict on different runs — which would undermine the reliability this project is built around.
+```python
+def get_verdict(ratios):
+    net_margin = ratios["Net Profit Margin (%)"]
+    debt_to_equity = ratios["Debt-to-Equity Ratio"]
+    current_ratio = ratios["Current Ratio"]
 
+    if net_margin > 8 and debt_to_equity < 1.5 and current_ratio > 1.5:
+        return "Strong Health"
+    elif net_margin > 0 and current_ratio > 1:
+        return "Moderate Health"
+    else:
+        return "Needs Attention"
+```
 
+This runs **before** the ratios are sent to Gemini. The `/analyze` endpoint returns `verdict` alongside `ratios` and `ai_explanation`, and the frontend displays it directly from the backend response. Verified against both years in the sample dataset: 2023 (Net Margin 9.74%) returns "Strong Health", while 2022 (Net Margin 7.15%) correctly returns "Moderate Health" — confirming the logic is genuinely dynamic, not hardcoded.
+
+**2.  Follow-up Q&A chat — Complete**
+
+A chat interface below the results lets the user ask specific questions about the analyzed company (e.g. *"why is the debt ratio manageable?"*). How it works:
+
+- A new backend function, `answer_question(ratios_dict, year, question)`, builds a prompt that includes the already-calculated ratios as context and explicitly instructs the AI to answer **using only those numbers** and to say so clearly if a question can't be answered from them — preventing the AI from inventing financial details not present in the verified data
+- A new `POST /ask` endpoint accepts `{ year, question }` and returns `{ answer }`
+- On the frontend, questions and answers are stored in a `chatHistory` array and rendered as chat bubbles, styled distinctly for user vs. AI messages
+
+This keeps the chat feature consistent with the project's core principle: every answer is grounded in numbers that were already calculated deterministically, never invented by the AI mid-conversation.
+
+**Note:** Testing this feature is temporarily blocked by hitting the Gemini free-tier daily request quota (20 requests/day) during development — this is expected given the volume of testing done while building `/analyze` and `/ask`, and will be re-verified once the quota resets.
 
 ### Technical Notes
 
