@@ -2,9 +2,13 @@ import { useState } from "react";
 import "./App.css";
 
 function App() {
-  const [screen, setScreen] = useState("welcome"); // "welcome" | "loading" | "results"
+  const [screen, setScreen] = useState("welcome");
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
+
+  const [question, setQuestion] = useState("");
+  const [chatHistory, setChatHistory] = useState([]);
+  const [asking, setAsking] = useState(false);
 
   const fetchAnalysis = async () => {
     setScreen("loading");
@@ -29,7 +33,6 @@ function App() {
     const file = e.target.files[0];
     if (file) {
       console.log("File selected:", file.name);
-
       fetchAnalysis();
     }
   };
@@ -38,12 +41,41 @@ function App() {
     fetchAnalysis();
   };
 
+  const handleAskQuestion = async () => {
+    if (!question.trim()) return;
+
+    const currentQuestion = question;
+    setQuestion("");
+    setAsking(true);
+
+    // User ගේ question එක, chat history එකට එකපාරටම add කරනවා (AI answer එකට කලින්ම පේන්න)
+    setChatHistory((prev) => [...prev, { role: "user", text: currentQuestion }]);
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ year: data.year, question: currentQuestion }),
+      });
+      const result = await response.json();
+
+      setChatHistory((prev) => [...prev, { role: "ai", text: result.answer }]);
+    } catch (err) {
+      console.error(err);
+      setChatHistory((prev) => [
+        ...prev,
+        { role: "ai", text: "Sorry, I couldn't process that question." },
+      ]);
+    } finally {
+      setAsking(false);
+    }
+  };
+
   return (
     <div className="page">
       {screen === "welcome" && (
         <div className="welcome-card">
           <div className="icon-circle">📊</div>
-
           <h1>Welcome to FinSight</h1>
           <p className="subtitle">
             Upload a company's financial statement and get an instant,
@@ -53,12 +85,7 @@ function App() {
           {error && <p className="error-message">{error}</p>}
 
           <label className="upload-box">
-            <input
-              type="file"
-              accept=".csv"
-              onChange={handleFileChange}
-              hidden
-            />
+            <input type="file" accept=".csv" onChange={handleFileChange} hidden />
             <div className="upload-icon">📄</div>
             <p className="upload-title">Drop your CSV file here</p>
             <p className="upload-subtitle">or click to browse</p>
@@ -88,28 +115,54 @@ function App() {
         </div>
       )}
 
-     {screen === "results" && data && (
-  <div className="results-card">
-    <div className="results-header">
-      <h2>Results for {data.year}</h2>
-     <span className="health-badge">{data.verdict}</span>
-    </div>
+      {screen === "results" && data && (
+        <div className="results-card">
+          <div className="results-header">
+            <h2>Results for {data.year}</h2>
+            <span className="health-badge">{data.verdict}</span>
+          </div>
 
-    <div className="ratios-grid">
-      {Object.entries(data.ratios).map(([key, value]) => (
-        <div className="ratio-card" key={key}>
-          <div className="ratio-label">{key}</div>
-          <div className="ratio-value">{value}</div>
+          <div className="ratios-grid">
+            {Object.entries(data.ratios).map(([key, value]) => (
+              <div className="ratio-card" key={key}>
+                <div className="ratio-label">{key}</div>
+                <div className="ratio-value">{value}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="ai-explanation-box">
+            <div className="ai-label">AI Explanation</div>
+            <p>{data.ai_explanation}</p>
+          </div>
+
+          <div className="chat-section">
+            {chatHistory.length > 0 && (
+              <div className="chat-history">
+                {chatHistory.map((msg, i) => (
+                  <div key={i} className={`chat-bubble ${msg.role}`}>
+                    {msg.text}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="chat-input-row">
+              <input
+                type="text"
+                placeholder="Ask a question about this company"
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAskQuestion()}
+                disabled={asking}
+              />
+              <button onClick={handleAskQuestion} disabled={asking}>
+                {asking ? "..." : "Ask"}
+              </button>
+            </div>
+          </div>
         </div>
-      ))}
-    </div>
-
-    <div className="ai-explanation-box">
-      <div className="ai-label">AI Explanation</div>
-      <p>{data.ai_explanation}</p>
-    </div>
-  </div>
-)}
+      )}
     </div>
   );
 }

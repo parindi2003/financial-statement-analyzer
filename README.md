@@ -10,7 +10,7 @@ Upload a company's financial statement (CSV/Excel with revenue, expenses, assets
 
 This project uses a **hybrid deterministic + AI architecture**:
 
-##  Part A: Calculation Engine — Complete ✅
+##  Part A: Calculation Engine — Complete 
 
 The calculation engine (`backend/calculations.py`) does the following:
 

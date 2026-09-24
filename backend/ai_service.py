@@ -17,10 +17,7 @@ import google.generativeai as genai
 genai.configure(api_key=api_key)
 model = genai.GenerativeModel("gemini-3.6-flash")
 def explain_ratios(ratios_dict, year):
-    """
-    Calculate කරපු financial ratios ටික, Gemini AI ට දීලා,
-    plain language explanation එකක් ලබාගන්නවා.
-    """
+    
     prompt = f"""
 You are a financial analyst assistant. Below are the calculated financial ratios 
 for a company for the year {year}. These numbers are already verified and accurate — 
@@ -34,6 +31,24 @@ Provide a short, clear analysis (3-4 sentences) covering:
 1. Is the company profitable?
 2. Is the company financially healthy (debt, liquidity)?
 3. Any concerns or strengths worth noting?
+"""
+    response = model.generate_content(prompt)
+    return response.text
+
+def answer_question(ratios_dict, year, question):
+    
+    prompt = f"""
+You are a financial analyst assistant. Below are the verified, calculated financial 
+ratios for a company for the year {year}. Answer the user's question using ONLY 
+these numbers. Do not invent any additional financial data. If the question cannot 
+be answered using the given ratios, say so clearly.
+
+Financial Ratios:
+{ratios_dict}
+
+User's Question: {question}
+
+Provide a clear, concise answer (2-3 sentences).
 """
     response = model.generate_content(prompt)
     return response.text
