@@ -1,16 +1,34 @@
-#  AI-Powered Financial Statement Analyst Agent
+# AI-Powered Financial Statement Analyst Agent
 
 An AI agent that analyzes financial statements — Pandas calculates the ratios, AI explains them in plain language.
 
-#  What it does
+## What it does
 
 Upload a company's financial statement (CSV/Excel with revenue, expenses, assets, liabilities), then ask questions like *"Is this company financially healthy?"* in natural language. The system automatically calculates financial ratios and uses AI to explain them in a way anyone can understand.
 
-#  Architecture — Hybrid Approach
+##  Project Status: Complete
 
-This project uses a **hybrid deterministic + AI architecture**:
+- [x] Project setup, Git & GitHub configured
+- [x] Part A: Calculation engine — complete (8 financial ratios, verified)
+- [x] Part B: AI reasoning layer — complete (Gemini API integration)
+- [x] Part A + Part B Integration — complete (verified end-to-end)
+- [x] Backend API (FastAPI) — complete (`/analyze`, `/ask` endpoints)
+- [x] Financial health verdict — complete (rules-based, deterministic)
+- [x] Frontend (React) — complete (Welcome → Loading → Results screens)
+- [x] Follow-up Q&A chat — complete
+- [x] End-to-end testing — **passed** 
 
-##  Part A: Calculation Engine — Complete 
+All core features are implemented, connected, and tested end-to-end: a user can upload (or use sample) financial data, see calculated ratios and a deterministic health verdict, read an AI-generated plain-language explanation, and ask follow-up questions — all grounded in the same verified numbers throughout.
+
+## Architecture — Hybrid Approach
+
+This project uses a **hybrid deterministic + AI architecture**.
+
+### Why this approach?
+
+LLMs can hallucinate numbers. In financial data, a wrong number presented confidently is a serious risk. By separating calculation (Pandas) from explanation (AI), this system guarantees the numbers are always correct, while still getting the benefit of natural-language interpretation.
+
+## Part A: Calculation Engine — Complete
 
 The calculation engine (`backend/calculations.py`) does the following:
 
@@ -31,9 +49,9 @@ The calculation engine (`backend/calculations.py`) does the following:
 
 Every ratio was manually cross-checked against hand-calculated values before being trusted in the pipeline — for example, 2023 Net Profit Margin was verified at 9.74% (487,000 / 5,000,000 × 100), matching the engine's output exactly.
 
-This engine deliberately contains **zero AI logic** — every number is produced by deterministic Python/Pandas arithmetic, which is the foundation the AI explanation layer (Part B) will build on top of.
+This engine deliberately contains **zero AI logic** — every number is produced by deterministic Python/Pandas arithmetic, which is the foundation the AI explanation layer (Part B) builds on top of.
 
-##  Part B: AI Reasoning Layer — In Progress
+## Part B: AI Reasoning Layer — Complete
 
 This layer uses the **Google Gemini API** to turn the numbers from Part A into plain-language explanations. Critically, the AI is never given raw, unverified data — it only receives ratios that have already been calculated and verified deterministically. The prompt explicitly instructs the model not to recalculate or question the numbers, only to interpret them.
 
@@ -44,130 +62,7 @@ This layer uses the **Google Gemini API** to turn the numbers from Part A into p
 
 This keeps the system's core guarantee intact: **numbers come from Pandas, meaning comes from AI** — never the other way around.
 
-##  Integration Milestone: Full Pipeline Working
-
-The system now runs end-to-end from the command line:
-
-CSV file → load_financials() → pivot_by_year() → calculate_ratios()
-↓
-(real, verified numbers)
-↓
-explain_ratios()
-↓
-Plain-language AI analysis
-
-
-**Example output** (using the sample dataset, 2023 data):
-
-> Calculated ratios: Net Profit Margin 9.74%, ROE 20.55%, Debt-to-Equity 0.92, Current Ratio 2.57
->
-> AI explanation: *"Yes, the company is highly profitable, keeping nearly 10% of its revenue as pure profit and delivering a strong 20.55% return on shareholder investment. It is also in excellent financial health, maintaining a manageable debt level and strong liquidity..."*
-
-This confirms the system's central design goal: **every number shown to the user is 100% deterministic and verifiable (Pandas), while the interpretation is handled by AI** — with no risk of the AI inventing or miscalculating a figure.
-
- ##  Backend API (FastAPI)
-
-The system is now exposed as a web API using **FastAPI**, making it accessible over HTTP rather than only through the command line. This is the layer the React frontend will connect to.
-
-**Endpoint implemented:**
-
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/` | Health check — confirms the API is running |
-| GET | `/analyze?year=2023` | Runs the full pipeline (CSV → ratios → AI explanation) for a given year and returns the result as JSON |
-
-**Example response from `/analyze`:**
-
-```json
-{
-  "year": 2023,
-  "ratios": {
-    "Gross Profit Margin (%)": 40.0,
-    "Net Profit Margin (%)": 9.74,
-    "Return on Equity - ROE (%)": 20.55,
-    "...": "..."
-  },
-  "ai_explanation": "Yes, the company is highly profitable, keeping nearly 10% of its revenue as pure profit..."
-}
-```
-
-This confirms the backend can now serve both the deterministic financial data and the AI-generated interpretation through a single, structured API call — exactly what a frontend needs to consume and display.
-
-##  Note on Sample Data
-
-The `sample_financials.csv` file is synthetic test data created to verify the calculation logic against known, hand-calculated expected values before testing against real-world financial data. This is standard practice for validating logic in a controlled way before introducing real-world complexity.
-
-### Why this approach?
-
-LLMs can hallucinate numbers. In financial data, a wrong number presented confidently is a serious risk. By separating calculation (Pandas) from explanation (AI), this system guarantees the numbers are always correct, while still getting the benefit of natural-language interpretation.
-
-##  Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Backend | FastAPI (Python) |
-| Calculation Engine | Pandas, NumPy |
-| AI/LLM | Google Gemini API |
-| Frontend | React |
-| Data | CSV/Excel (no database) |
-
-##  Frontend (React) — In Progress
-
-The frontend is built as a **3-screen user flow**: Welcome → Analyzing → Results. It communicates with the FastAPI backend over HTTP.
-
-### Design Direction
-
-A clean, ledger-inspired aesthetic — warm paper-white backgrounds, serif headings, monospace numbers, and a muted teal/amber accent palette — chosen to feel trustworthy and financial rather than like a generic SaaS dashboard.
-
-### Screen 1: Welcome Screen —  Complete
-
-- Introduces the app in one sentence
-- Lets the user upload their own CSV, or click "Try with sample company data" for an instant demo
-- Displays a clear error message if the backend request fails (e.g. server not running)
-
-### Screen 2: Analyzing (Loading State) —  Complete
-
-Shown while the request to the backend is in flight (the pipeline includes a live AI API call, so this can take a few seconds).
-
-
-
-### Screen 3: Results Dashboard —  Complete (core version)
-
-Once the backend responds, the raw JSON is transformed into a readable dashboard:
-
-- **Full pipeline connected end-to-end** — clicking "Try sample data" (or uploading a file) triggers a real HTTP request to the FastAPI `/analyze` endpoint. Nothing on this screen is mocked: the ratios shown are the live output of `calculations.py`, and the narrative is a live response from the Gemini API.
-
-- **Categorized ratio cards, rendered dynamically** — rather than hardcoding eight separate `<div>` elements (one per ratio), the component uses `Object.entries(data.ratios).map(...)` to loop over whatever ratios the backend returns and generate a card for each one automatically. This means the UI doesn't need to change if more ratios are added to `calculations.py` in the future — it scales with the backend's output.
-
-- **AI explanation panel** — the plain-language analysis returned by `explain_ratios()` is displayed in a visually distinct, highlighted section (amber accent), separating "AI-generated interpretation" from the "calculated facts" (ratio cards) at a glance.
-
-- **Health badge — currently a static placeholder.** The dashboard shows a "Strong Health" label, but this is hardcoded in the frontend for now, not calculated. This is called out explicitly here rather than left ambiguous, because it's the next piece of real logic to be built (see below).
-
-### Planned Next Steps
-
-**1. ✅ Financial health verdict — Complete**
-
-Implemented as a deterministic Python function (`get_verdict()` in `calculations.py`):
-
-```python
-def get_verdict(ratios):
-    net_margin = ratios["Net Profit Margin (%)"]
-    debt_to_equity = ratios["Debt-to-Equity Ratio"]
-    current_ratio = ratios["Current Ratio"]
-
-    if net_margin > 8 and debt_to_equity < 1.5 and current_ratio > 1.5:
-        return "Strong Health"
-    elif net_margin > 0 and current_ratio > 1:
-        return "Moderate Health"
-    else:
-        return "Needs Attention"
-```
-
-This runs **before** the ratios are sent to Gemini. The `/analyze` endpoint now returns `verdict` alongside `ratios` and `ai_explanation`, and the frontend displays it directly from the backend response (`data.verdict`) rather than a hardcoded label. The AI is not involved in reaching this verdict — it only explains it — keeping the system's core guarantee intact: **decisions and numbers are deterministic, only the explanation is AI-generated.**
-
-### Planned Next Steps
-
-**1.  Financial health verdict — Complete**
+## Financial Health Verdict — Complete (Rules-Based, Not AI)
 
 Implemented as a deterministic Python function (`get_verdict()` in `calculations.py`):
 
@@ -187,61 +82,115 @@ def get_verdict(ratios):
 
 This runs **before** the ratios are sent to Gemini. The `/analyze` endpoint returns `verdict` alongside `ratios` and `ai_explanation`, and the frontend displays it directly from the backend response. Verified against both years in the sample dataset: 2023 (Net Margin 9.74%) returns "Strong Health", while 2022 (Net Margin 7.15%) correctly returns "Moderate Health" — confirming the logic is genuinely dynamic, not hardcoded.
 
-**2.  Follow-up Q&A chat — Complete**
+This design choice matters for the same reason the ratio calculations are kept out of the AI's hands: **a verdict is a decision**, and this project's whole premise is that decisions and numbers come from deterministic code, while the AI's role is strictly limited to interpretation.
+
+## Follow-up Q&A Chat — Complete
 
 A chat interface below the results lets the user ask specific questions about the analyzed company (e.g. *"why is the debt ratio manageable?"*). How it works:
 
-- A new backend function, `answer_question(ratios_dict, year, question)`, builds a prompt that includes the already-calculated ratios as context and explicitly instructs the AI to answer **using only those numbers** and to say so clearly if a question can't be answered from them — preventing the AI from inventing financial details not present in the verified data
-- A new `POST /ask` endpoint accepts `{ year, question }` and returns `{ answer }`
+- A backend function, `answer_question(ratios_dict, year, question)`, builds a prompt that includes the already-calculated ratios as context and explicitly instructs the AI to answer **using only those numbers** and to say so clearly if a question can't be answered from them — preventing the AI from inventing financial details not present in the verified data
+- A `POST /ask` endpoint accepts `{ year, question }` and returns `{ answer }`
 - On the frontend, questions and answers are stored in a `chatHistory` array and rendered as chat bubbles, styled distinctly for user vs. AI messages
 
-This keeps the chat feature consistent with the project's core principle: every answer is grounded in numbers that were already calculated deterministically, never invented by the AI mid-conversation.
+**Verified working end-to-end.** Example test:
 
-**Note:** Testing this feature is temporarily blocked by hitting the Gemini free-tier daily request quota (20 requests/day) during development — this is expected given the volume of testing done while building `/analyze` and `/ask`, and will be re-verified once the quota resets.
+> **Q:** "Why is the debt ratio manageable?"
+>
+> **A:** "The debt ratio is manageable because the Debt-to-Equity ratio of 0.92 indicates that the company uses less debt than equity to finance its assets. Furthermore, strong liquidity—demonstrated by a Current Ratio of 2.57 and a Quick Ratio of 1.54—ensures ample short-term coverage for financial obligations. Solid profitability, including an Operating Margin of 16.0% and a Net Profit Margin of 9.74%, provides steady earnings support to service its debt load effectively."
+
+Every figure in the answer traces back to a number calculated by `calculations.py` — confirming the AI is grounding its responses in verified data rather than inventing figures.
+
+## Backend API (FastAPI)
+
+The system is exposed as a web API using **FastAPI**, making it accessible over HTTP for the React frontend to consume.
+
+**Endpoints implemented:**
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/` | Health check — confirms the API is running |
+| GET | `/analyze?year=2023` | Runs the full pipeline (CSV → ratios → verdict → AI explanation) for a given year and returns the result as JSON |
+| POST | `/ask` | Accepts `{ year, question }`, answers the question using the already-calculated ratios as context, returns `{ answer }` |
+
+**Example response from `/analyze`:**
+
+```json
+{
+  "year": 2023,
+  "ratios": {
+    "Gross Profit Margin (%)": 40.0,
+    "Net Profit Margin (%)": 9.74,
+    "Return on Equity - ROE (%)": 20.55,
+    "...": "..."
+  },
+  "verdict": "Strong Health",
+  "ai_explanation": "Yes, the company is highly profitable, keeping nearly 10% of its revenue as pure profit..."
+}
+```
+
+**CORS:** the backend explicitly allows requests from the React dev server (`http://localhost:5173`) via `CORSMiddleware`, since browsers block cross-origin requests by default.
+
+## Frontend (React)
+
+Built as a **3-screen user flow**: Welcome → Analyzing → Results, communicating with the FastAPI backend over HTTP.
+
+### Design Direction
+
+A clean, ledger-inspired aesthetic — warm paper-white backgrounds, serif headings, monospace numbers, and a muted teal/amber accent palette — chosen to feel trustworthy and financial rather than like a generic SaaS dashboard.
+
+### Screen 1: Welcome Screen
+
+- Introduces the app in one sentence
+- Lets the user upload their own CSV, or click "Try with sample company data" for an instant demo
+- Displays a clear error message if the backend request fails (e.g. server not running)
+
+### Screen 2: Analyzing (Loading State)
+
+Shown while the request to the backend is in flight (the pipeline includes a live AI API call, so this can take a few seconds).
+
+### Screen 3: Results Dashboard
+
+- **Full pipeline connected end-to-end** — clicking "Try sample data" (or uploading a file) triggers a real HTTP request to the FastAPI `/analyze` endpoint. Nothing on this screen is mocked.
+- **Categorized ratio cards, rendered dynamically** — rather than hardcoding eight separate elements, the component uses `Object.entries(data.ratios).map(...)` to loop over whatever ratios the backend returns and generate a card for each one automatically. The UI scales automatically if more ratios are added to `calculations.py`.
+- **Health badge** — displays `data.verdict` directly from the backend's rules-based logic (not hardcoded).
+- **AI explanation panel** — the plain-language analysis from Gemini, displayed in a visually distinct, highlighted section (amber accent), separating "AI-generated interpretation" from the "calculated facts" (ratio cards) at a glance.
+- **Follow-up chat** — a chat input and message history for asking specific questions, as described above.
 
 ### Technical Notes
 
-- **CORS**: the FastAPI backend explicitly allows requests from the React dev server (`http://localhost:5173`) via `CORSMiddleware`, since browsers block cross-origin requests by default
 - **State management**: a single `screen` state variable (`"welcome" | "loading" | "results"`) controls which view is rendered, using conditional rendering rather than a routing library — appropriate for this app's simple, linear flow
 
-### Planned Next Steps
-1. Build the styled Results dashboard (ratio cards, verdict, AI narrative)
-2. Add the rules-based health verdict logic
-3. Add follow-up Q&A chat
+## Tech Stack
 
-##  Project Status
+| Layer | Technology |
+|---|---|
+| Backend | FastAPI (Python) |
+| Calculation Engine | Pandas, NumPy |
+| AI/LLM | Google Gemini API |
+| Frontend | React (Vite) |
+| Data | CSV/Excel (no database) |
 
-- [x] Project setup, Git & GitHub configured
-- [x] Part A: Calculation engine — **complete**
-  - [x] CSV loading with Pandas
-  - [x] Data pivoting (long format → wide format)
-  - [x] All 8 core financial ratios implemented & verified
-- [x] Part B: AI reasoning layer — **complete**
-  - [x] Gemini API connected and authenticated
-  - [x] `explain_ratios()` function — converts calculated ratios into a natural-language prompt and returns a plain-English explanation
-- [x] Part A + Part B Integration — **complete**
-  - [x] Real calculated ratios (not dummy data) are automatically passed to the AI layer
-  - [x] End-to-end pipeline verified: CSV → Pandas ratios → AI explanation
-- [x] Backend API (FastAPI) — **complete**
-  - [x] `/analyze` endpoint — runs the full pipeline and returns ratios + AI explanation as JSON
-- [x] **Frontend (React) — in progress** 
-  - [x] Project scaffolded with Vite
-  - [x] Welcome screen UI — file upload area + "try sample data" option, styled to match a clean, ledger-inspired design
-  - [ ] Connect upload/sample button to backend `/analyze` endpoint
-  - [ ] Loading state while analysis runs
-  - [ ] Results screen — ratios display, AI explanation, verdict, follow-up chat
-- [ ] End-to-end testing with real company data
-
-##  Project Structure
+## Project Structure
 
 ```
 financial-statement-analyzer/
 ├── backend/
-│   ├── calculations.py      → Pandas ratio calculations (Part A)
-│   ├── ai_service.py        → Gemini API integration (Part B)
-│   └── main.py               → FastAPI server
-├── frontend/                → React app (UI)
+│   ├── calculations.py       → Pandas ratio calculations + verdict logic (Part A)
+│   ├── ai_service.py         → Gemini API integration (Part B)
+│   └── main.py                → FastAPI server (/analyze, /ask endpoints)
+├── frontend/                 → React app (UI)
 ├── data/
 │   └── sample_financials.csv → Sample dataset for testing
 └── README.md
 ```
+
+## Note on Sample Data
+
+The `sample_financials.csv` file is synthetic test data created to verify the calculation logic against known, hand-calculated expected values before testing against real-world financial data. This is standard practice for validating logic in a controlled way before introducing real-world complexity.
+
+##  What This Project Demonstrates
+
+- **Hybrid AI system design** — separating deterministic computation from AI interpretation to eliminate hallucination risk in a domain (finance) where accuracy is critical
+- **Full-stack development** — a working React frontend, FastAPI backend, and third-party AI API (Gemini) integrated into a single, coherent application
+- **Thoughtful architectural decisions** — e.g. the financial health verdict is rule-based rather than AI-generated, so the same input always produces the same, auditable output
+- **Practical debugging** — real issues encountered and resolved during development (CORS configuration, environment setup, indentation/naming bugs, API rate limits) rather than a pre-written, frictionless build
